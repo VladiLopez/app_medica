@@ -22,10 +22,13 @@ const Patient_ID_info = ({route}) => {
   const [nombre, setNombre] = useState("Cargando..."); // Variable para el nombre
   const [apellido, setApellido] = useState("Cargando..."); // Variable para el apellido
   const [edad, setEdad] = useState('22'); // Variable para la edad
-    const userId = route.params?.userId;
-    const {Json} = useJson();
-    const [data, setData] = useState(null);
- 
+  const userId = route.params?.userId;
+  const {Json} = useJson();
+  const [data, setData] = useState(null);
+  //Aqui van los estados del paciente
+  const [ActualState, setActualState] = useState(2); //ESTADO ACTUAL
+  const [FutureState, setFutureStare] = useState(1); //Estado futuro
+
     useEffect(() => {
       const fetchDataWithId = async (id) => {
         try {
@@ -33,13 +36,18 @@ const Patient_ID_info = ({route}) => {
           const jsonData = await GetInfo(id);
           setNombre(jsonData.username);
           setApellido(jsonData.apellidos);
+          if(jsonData.status>=0 && jsonData.status<=2){
+            setActualState(jsonData.status);
+            console.log("Entra");
+          }
           // Puedes actualizar otras variables de estado según sea necesario
         } catch (error) {
           console.error('Error al obtener el JSON:', error);
         }
       };
-      fetchDataWithId(userId); // Llama a la función de carga de datos cuando userId cambie
-    }, [userId]); // Esto asegura que se llame cuando userId cambie
+      fetchDataWithId(userId);
+    }, [userId]);
+
     let primerApellido = '';
     if (Json && Json.apellidos) {
       const apellidosArray = Json.apellidos.split(' '); // Divide la cadena de apellidos en un array
@@ -49,9 +57,6 @@ const Patient_ID_info = ({route}) => {
     }
 
     const [Doctor, setDoctor] = useState(Json.username + " " + primerApellido); // Variable para la edad
-    //Aqui van los estados del paciente
-    const [ActualState, setActualState] = useState(1); //ESTADO ACTUAL
-    const [FutureState, setFutureStare] = useState(2); //Estado futuro
     //Aqui va la ruta o la peticion a la imagen del paciente
     const imageUrl = require('../assets/Sample/Patient.jpeg');
     const navigateToStatistics = (userId) => {
@@ -61,38 +66,38 @@ const Patient_ID_info = ({route}) => {
       navigation.navigate('History');
     };
     return (
-        <View style={styles.MainContainer}>
-          <View style={styles.photoContainer}>
-            <Text style={styles.titleText}>Datos del paciente:</Text>
-            <Image source={imageUrl} style={styles.PatientPhoto}
-                    resizeMode="contain" // Controla cómo se ajusta la imagen
-                    />
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.DataText2}>Nombre: {nombre}</Text>
-            <Text style={styles.DataText}>Apellido: {apellido}</Text>
-            <Text style={styles.DataText}>Edad: {edad}</Text>
-            <Text style={styles.DataText}>Doctor a cargo: {Doctor}</Text>
-    
-          </View>
-          <View style={styles.Patient_StatusContainer}>
-          <View style={[styles.estados, { backgroundColor: ColorAssigner({ numero: ActualState }) }]}>
-            <Text style={styles.StatusText}>Status Actual: {TextAssigner({ numero: ActualState })}</Text>
-          </View>
-          <View style={[styles.estados, { backgroundColor: ColorAssigner({ numero: FutureState }) }]}>
-            <Text style={styles.StatusText}>Status Futuro: {TextAssigner({ numero: FutureState })}</Text>
-          </View>
-          </View>
-          <View style={styles.chatbotContainer}>
-          <TouchableOpacity style={[styles.historial]} onPress={navigateToHistory}>
-            <Text style={[styles.StatusText, {marginLeft: "10%",}]}>Historial Clinico</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.estadistica]} onPress={() => navigateToStatistics(userId)}>
-            <Text style={[styles.StatusText, {marginLeft: "13%",}]}>Señal Actual</Text>
-          </TouchableOpacity>
-            <ButtonChatbox></ButtonChatbox>
-          </View>
+      <View style={styles.MainContainer}>
+        <View style={styles.photoContainer}>
+          <Text style={styles.titleText}>Datos del paciente:</Text>
+          <Image source={imageUrl} style={styles.PatientPhoto}
+                  resizeMode="contain" // Controla cómo se ajusta la imagen
+                  />
         </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.DataText2}>Nombre: {nombre}</Text>
+          <Text style={styles.DataText}>Apellido: {apellido}</Text>
+          <Text style={styles.DataText}>Edad: {edad}</Text>
+          <Text style={styles.DataText}>Doctor a cargo: {Doctor}</Text>
+  
+        </View>
+        <View style={styles.Patient_StatusContainer}>
+        <View style={[styles.estados, { backgroundColor: ColorAssigner({ numero: ActualState }) }]}>
+          <Text style={styles.StatusText}>Status Actual: {TextAssigner({ numero: ActualState })}</Text>
+        </View>
+        <View style={[styles.estados, { backgroundColor: ColorAssigner({ numero: FutureState }) }]}>
+          <Text style={styles.StatusText}>Status Futuro: {TextAssigner({ numero: FutureState })}</Text>
+        </View>
+        </View>
+        <View style={styles.chatbotContainer}>
+        <TouchableOpacity style={[styles.historial]} onPress={navigateToHistory}>
+          <Text style={[styles.StatusText, {marginLeft: "10%",}]}>Historial Clinico</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.estadistica]} onPress={() => navigateToStatistics(userId)}>
+          <Text style={[styles.StatusText, {marginLeft: "13%",}]}>Estadisticas</Text>
+        </TouchableOpacity>
+          <ButtonChatbox></ButtonChatbox>
+        </View>
+      </View>
       )
 }
 
